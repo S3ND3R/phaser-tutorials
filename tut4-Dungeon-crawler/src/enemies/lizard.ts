@@ -5,7 +5,8 @@ enum Direction
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    TEST
 }
 
 export default class Lizard extends Phaser.Physics.Arcade.Sprite
