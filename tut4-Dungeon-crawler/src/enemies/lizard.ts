@@ -16,14 +16,14 @@ export default class Lizard extends Phaser.Physics.Arcade.Sprite
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number)
     {
         super(scene, x, y, texture, frame);
-        this.anims.play('lizard-idle');
-
+        this.anims.play('lizard-run');
+        
         scene.physics.world.on(Phaser.Physics.Arcade.Events.TILE_COLLIDE, this.handleTileCollision, this);
 
         this.moveEvent = scene.time.addEvent({
             delay: Phaser.Math.Between(1500, 2000),
             callback: () => {
-                this.direction = this.getNewDirection(this.direction);
+                this.direction = this.getRandNewDirRec(this.direction);
             },
             loop: true 
         });
@@ -61,14 +61,35 @@ export default class Lizard extends Phaser.Physics.Arcade.Sprite
         super.destroy();
     }
 
-    private getNewDirection(exclude: Direction)
-    {
-        let newDirection = Phaser.Math.Between(0,3);
+    /**
+     * Original implementation from the tutorial
+     * 
+     * implementation uses iterative method
+     */
 
-        for (let count = 0; newDirection === exclude && count < 5; count++) {
-            newDirection = Phaser.Math.Between(0,3);
+    // private getNewDirection(exclude: Direction)
+    // {
+    //     let newDirection = Phaser.Math.Between(0,3);
+
+    //     for (let count = 0; newDirection === exclude && count < 5; count++) {
+    //         newDirection = Phaser.Math.Between(0,3);
+    //     }
+    //     return newDirection;
+    // }
+
+    /**
+     * recursive version of the tutorial function
+     * @param exclude a Direction 
+     * @returns a Direction
+     */
+    private getRandNewDirRec(exclude: Direction)
+    {
+        let newDir = Phaser.Math.Between(0, 3);
+        if (newDir === exclude)
+        {
+            newDir = this.getRandNewDirRec(exclude);
         }
-        return newDirection;
+        return newDir;
     }
 
     private handleTileCollision(go: Phaser.GameObjects.GameObject, tile: Phaser.Tilemaps.Tile)
@@ -77,6 +98,6 @@ export default class Lizard extends Phaser.Physics.Arcade.Sprite
         {
             return
         }
-        this.direction = this.getNewDirection(this.direction);;
+        this.direction = this.getRandNewDirRec(this.direction);;
     }
 }

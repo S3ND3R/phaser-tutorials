@@ -1,13 +1,16 @@
 import Phaser from 'phaser';
 import Lizard from '../enemies/lizard';
+import '../characters/fauna';
+import Fauna from '../characters/fauna';
 
 import {debugDraw} from '../utils/debug';
+
 
 export default class Game extends Phaser.Scene
 {
     
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private fauna!: Phaser.Physics.Arcade.Sprite;
+    private fauna!: Fauna;
     private lizards!: Phaser.Physics.Arcade.Group;
     
 	constructor()
@@ -26,10 +29,9 @@ export default class Game extends Phaser.Scene
 
         //debugDraw(wallLayer, this);
 
-        this.fauna = this.physics.add.sprite(128, 128, 'fauna', 'walk-down-3.png');
-        this.fauna.body.setSize(this.fauna.height * 0.5, this.fauna.width * 0.8);
-        this.fauna.play('fauna-idle-down');
+        this.fauna = this.add.fauna(128, 128, 'fauna');
 
+        // TODO: this may be able to have collision handled in the lizard class 
         this.lizards = this.physics.add.group({
             classType: Lizard,
             createCallback: (go) => {
@@ -44,6 +46,7 @@ export default class Game extends Phaser.Scene
 
         this.physics.add.collider(this.fauna, wallLayer);
         this.physics.add.collider(this.lizards, wallLayer);
+        this.physics.add.collider(this.fauna, this.lizards, this.handleLizardPlayerCol, undefined, this);
 
         this.cameras.main.startFollow(this.fauna, true);
 
@@ -51,44 +54,25 @@ export default class Game extends Phaser.Scene
 
     update(t: number, dt: number)
     {
-        const speed = 100;
-
-        // check that fauna and cursors have been defined
-        if(!this.cursors || !this.fauna)
+        if (this.fauna)
         {
-            return;
+            this.fauna.update(this.cursors);
         }
 
-        if(this.cursors.up?.isDown)
-        {
-            this.fauna.setVelocity(0, -speed);
-            this.fauna.play('fauna-run-up', true);
-        }
-        else if(this.cursors.down?.isDown)
-        {
-            this.fauna.setVelocity(0, speed);
-            this.fauna.play('fauna-run-down', true);
-        }
-        else if(this.cursors.right?.isDown)
-        {
-            this.fauna.setVelocity(speed, 0);
-            this.fauna.play('fauna-run-side', true);
-            this.fauna.scaleX = 1;
-            this.fauna.body.offset.x = 8;
-        }
-        else if(this.cursors.left?.isDown)
-        {
-            this.fauna.setVelocity(-speed, 0);
-            this.fauna.play('fauna-run-side', true);
-            this.fauna.scaleX = -1;
-            this.fauna.body.offset.x = 24;
+    }
 
-        }
-        else
-        {
-            const parts: string[] = this.fauna.anims.currentAnim.key.split('-');
-            parts[1] = 'idle'
-            this.fauna.play(parts.join('-')).setVelocity(0,0);
-        }
+    /**
+     * handler method for lizard and player collision
+     */
+    private handleLizardPlayerCol(player: Phaser.GameObjects.GameObject, enemy: Phaser.GameObjects.GameObject)
+    {
+        const lizard = enemy as Lizard;
+
+        const dx = this.fauna.x - lizard.x;
+        const dy = this.fauna.y - lizard.y;
+
+        const bounceDir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
+
+        this.fauna.handleDamage(bounceDir);
     }
 }
