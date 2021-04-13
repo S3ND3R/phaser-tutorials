@@ -15,13 +15,15 @@ declare global
 enum HealthState
 {
     SAFE,
-    DAMAGE
+    DAMAGE,
+    DEAD
 }
 
 export default class Fauna extends Phaser.Physics.Arcade.Sprite
 {
     private healthState: HealthState = HealthState.SAFE;
     private damageTime: number;
+    private _health: number;
 
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number)
     {
@@ -29,10 +31,12 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
 
         this.play('fauna-idle-down');
         this.damageTime = 0;
+        this._health = 3;
     }
 
     preUpdate(t: number, dt: number)
     {
+        super.preUpdate(t, dt);
         switch(this.healthState)
         {
             case HealthState.SAFE:
@@ -46,7 +50,7 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
                     this.damageTime = 0;
                 }
                 break;
-        }
+        };
 
     }
 
@@ -58,6 +62,12 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         {
             return;
         }
+
+        if (this.healthState === HealthState.DEAD)
+        {
+            return;
+        }
+
 
         // check that cursors have been defined
         if(!cursors)
@@ -117,8 +127,17 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
 
     }
 
-    handleDamage(dir: Phaser.Math.Vector2)
+    get health(): number
     {
+        return this._health;
+    }
+
+    handleDamage(dir: Phaser.Math.Vector2): void
+    {
+        if (this.healthState === HealthState.DEAD)
+        {
+            return;
+        }
         if (this.healthState === HealthState.DAMAGE)
         {
             return;
@@ -126,6 +145,13 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         this.setVelocity(dir.x, dir.y);
         this.setTint(0xff0000);
         this.healthState = HealthState.DAMAGE;
+        --this._health;
+        if (this._health <= 0)
+        {
+            this.healthState = HealthState.DEAD;
+            this.play('fauna-faint', true);
+            this.setVelocity(0,0);
+        }
     }
 }
 

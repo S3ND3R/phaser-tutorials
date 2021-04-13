@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Lizard from '../enemies/lizard';
 import '../characters/fauna';
 import Fauna from '../characters/fauna';
+import {sceneEvents} from '../events/EventsCenter'
 
 import {debugDraw} from '../utils/debug';
 
@@ -12,6 +13,8 @@ export default class Game extends Phaser.Scene
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private fauna!: Fauna;
     private lizards!: Phaser.Physics.Arcade.Group;
+
+    private playerLizardCollider?: Phaser.Physics.Arcade.Collider; 
     
 	constructor()
 	{
@@ -20,6 +23,7 @@ export default class Game extends Phaser.Scene
 
     create()
     {
+        this.scene.run('game-ui');
         const map = this.make.tilemap({key: 'dungeon'});
         const tileSet = map.addTilesetImage('Dungeon', 'tiles');
         map.createLayer('ground', tileSet);
@@ -46,7 +50,7 @@ export default class Game extends Phaser.Scene
 
         this.physics.add.collider(this.fauna, wallLayer);
         this.physics.add.collider(this.lizards, wallLayer);
-        this.physics.add.collider(this.fauna, this.lizards, this.handleLizardPlayerCol, undefined, this);
+        this.playerLizardCollider = this.physics.add.collider(this.fauna, this.lizards, this.handleLizardPlayerCol, undefined, this);
 
         this.cameras.main.startFollow(this.fauna, true);
 
@@ -74,5 +78,13 @@ export default class Game extends Phaser.Scene
         const bounceDir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
 
         this.fauna.handleDamage(bounceDir);
+
+        sceneEvents.emit('player-health-damaged', this.fauna.health);
+
+        // TODO: handle this within the player class
+        if (this.fauna.health <= 0)
+        {
+            this.playerLizardCollider?.destroy();
+        }
     }
 }
