@@ -17,6 +17,7 @@ export default class Preloader extends Phaser.Scene
         this.load.atlas('lizMan', 'enemies/lizard.png', 'enemies/lizard.json');
         this.load.image('uiHeartFull', 'ui/ui_heart_full.png');
         this.load.image('uiHeartEmpty', 'ui/ui_heart_empty.png');
+        this.load.image('knife', 'weapons/weapon_knife.png');
     }
 
     create()

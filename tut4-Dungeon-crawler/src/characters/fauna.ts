@@ -24,6 +24,7 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
     private healthState: HealthState = HealthState.SAFE;
     private damageTime: number;
     private _health: number;
+    private knives?: Phaser.Physics.Arcade.Group;
 
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number)
     {
@@ -72,6 +73,12 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         // check that cursors have been defined
         if(!cursors)
         {
+            return;
+        }
+
+        if (Phaser.Input.Keyboard.JustDown(cursors.space))
+        {
+            this.throwKnife();
             return;
         }
 
@@ -127,9 +134,58 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
 
     }
 
+    private throwKnife() : void
+    {
+        if(!this.knives)
+        {
+            return;
+        }
+
+        const vec = new Phaser.Math.Vector2(0,0);
+        const parts = this.anims.currentAnim.key.split('-');
+        const dir = parts[2];
+
+        switch(dir)
+        {
+            case 'up':
+                vec.y = -1;
+                break;
+            case 'down':
+                vec.y = 1;
+                break;
+            default:
+            case 'side':
+                if (this.scaleX < 0)
+                {
+                    vec.x = -1;
+                }
+                else
+                {
+                    vec.x = 1;
+                }
+                break;
+        }
+
+        const angle = vec.angle();
+        const knife = this.knives.get(this.x, this.y, 'knife') as Phaser.Physics.Arcade.Image;
+
+        knife.x += vec.x * 16;
+        knife.y += vec.y * 16;
+
+        knife.setActive(true);
+        knife.setVisible(true);
+        knife.setRotation(angle);
+        knife.setVelocity(vec.x * 300, vec.y * 300);
+    }
+
     get health(): number
     {
         return this._health;
+    }
+
+    setKnives(knives: Phaser.Physics.Arcade.Group): void
+    {
+        this.knives = knives;
     }
 
     handleDamage(dir: Phaser.Math.Vector2): void
@@ -149,6 +205,7 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         if (this._health <= 0)
         {
             this.healthState = HealthState.DEAD;
+            this.body.enable = false;
             this.play('fauna-faint', true);
             this.setVelocity(0,0);
         }
