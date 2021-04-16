@@ -3,6 +3,7 @@ import Lizard from '../enemies/lizard';
 import '../characters/fauna';
 import Fauna from '../characters/fauna';
 import {sceneEvents} from '../events/EventsCenter'
+import Chest from '../items/Chest';
 
 import {debugDraw} from '../utils/debug';
 
@@ -35,6 +36,17 @@ export default class Game extends Phaser.Scene
         const wallLayer = map.createLayer('walls', tileSet);
         wallLayer.setCollisionByProperty({collides: true});
 
+        // create chest group
+        const chests = this.physics.add.staticGroup({
+            classType: Chest
+        });
+        
+        const chestLayer = map.getObjectLayer('Chests');
+
+        chestLayer.objects.forEach(ChestObj => {
+            chests.get(ChestObj.x! + ChestObj.width! * 0.5, ChestObj.y! - ChestObj.height! * 0.5, 'chest');
+        });
+
         //debugDraw(wallLayer, this);
 
         // create player character
@@ -62,11 +74,12 @@ export default class Game extends Phaser.Scene
 
         // create colliders
         this.physics.add.collider(this.fauna, wallLayer);
+        this.physics.add.collider(this.fauna, chests, this.handlePlayerChestCollision, undefined, this);
         this.physics.add.collider(this.lizards, wallLayer);
         this.playerLizardCollider = this.physics.add.collider(this.fauna, this.lizards, this.handleLizardPlayerCol, undefined, this);
         this.physics.add.collider(this.knives, wallLayer, this.handleKnifeWallCollision, undefined, this);
         this.physics.add.collider(this.knives, this.lizards, this.handleKnifeLizardCollision, undefined, this);
-
+        
         // create camera
         this.cameras.main.startFollow(this.fauna, true);
 
@@ -109,9 +122,17 @@ export default class Game extends Phaser.Scene
         this.knives.killAndHide(knife);
     }
 
+    // TODO: fix lizard still colliding with the player
     private handleKnifeLizardCollision(knife: Phaser.GameObjects.GameObject, lizard: Phaser.GameObjects.GameObject)
     {
         this.knives.killAndHide(knife);
         this.lizards.killAndHide(lizard);
+
+    }
+
+    private handlePlayerChestCollision(player: Phaser.GameObjects.GameObject, chestObj: Phaser.GameObjects.GameObject)
+    {
+        let chest =  chestObj as Chest;
+        this.fauna.setChest(chest);
     }
 }
