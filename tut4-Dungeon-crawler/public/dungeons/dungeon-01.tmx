@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="9">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="24">
  <editorsettings>
   <export target="dungeon-01.tmx" format="tmx"/>
  </editorsettings>
@@ -1019,5 +1019,12 @@
   <object id="6" gid="59" x="656.5" y="254" width="16" height="16"/>
   <object id="7" gid="59" x="518.5" y="230" width="16" height="16"/>
   <object id="8" gid="59" x="80" y="544" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="4" name="Enemies">
+  <object id="10" name="Liz2" type="Lizard" gid="79" x="785.5" y="352.5" width="16" height="16"/>
+  <object id="11" name="Liz3" type="Lizard" gid="79" x="385.5" y="286.5" width="16" height="16"/>
+  <object id="12" name="Liz4" type="Lizard" gid="79" x="111" y="384.5" width="16" height="16"/>
+  <object id="13" name="Liz5" type="Lizard" gid="79" x="210" y="529" width="16" height="16"/>
+  <object id="14" name="Liz1" type="Lizard" gid="79" x="176" y="175.5" width="16" height="16"/>
  </objectgroup>
 </map>

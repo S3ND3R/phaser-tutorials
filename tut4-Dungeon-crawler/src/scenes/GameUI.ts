@@ -11,7 +11,10 @@ export default class GameUI extends Phaser.Scene
 
     create()
     {
-        const coinsLabel = this.add.text(5, 20, '0');
+        this.add.image(8, 26, 'chest', 'coin_anim_f0.png');
+        const coinsLabel = this.add.text(13, 20, '0', {
+            fontSize: '14'
+        });
         this.health = this.add.group({
             classType: Phaser.GameObjects.Image
         });

@@ -160,6 +160,11 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         {
             return;
         }
+        const knife = this.knives.get(this.x, this.y, 'knife') as Phaser.Physics.Arcade.Image;
+        if(!knife)
+        {
+            return;
+        }
 
         const vec = new Phaser.Math.Vector2(0,0);
         const parts = this.anims.currentAnim.key.split('-');
@@ -187,7 +192,6 @@ export default class Fauna extends Phaser.Physics.Arcade.Sprite
         }
 
         const angle = vec.angle();
-        const knife = this.knives.get(this.x, this.y, 'knife') as Phaser.Physics.Arcade.Image;
 
         knife.x += vec.x * 16;
         knife.y += vec.y * 16;
@@ -246,7 +250,7 @@ Phaser.GameObjects.GameObjectFactory.register('fauna', function(this: Phaser.Gam
 
     this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY);
 
-    sprite.body.setSize(sprite.height * 0.5, sprite.width * 0.8);
+    sprite.body.setSize(sprite.height * 0.5, sprite.width * 0.5);
 
     return sprite;
 });

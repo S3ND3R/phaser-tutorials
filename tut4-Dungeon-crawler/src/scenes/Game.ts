@@ -61,11 +61,17 @@ export default class Game extends Phaser.Scene
                 lizGo.body.onCollide = true;
             }
         });
-        this.lizards.get(200, 160, 'lizMan');
+
+        const lizardLayer = map.getObjectLayer('Enemies');
+
+        lizardLayer.objects.forEach(LizObject => {
+            this.lizards.get(LizObject.x! + LizObject.width! * 0.5, LizObject.y! - LizObject.height! * 0.5, 'lizMan');
+        });
 
         //create a knives group
         this.knives = this.physics.add.group({
-            classType: Phaser.Physics.Arcade.Image
+            classType: Phaser.Physics.Arcade.Image,
+            maxSize: 3
         });
         this.fauna.setKnives(this.knives);
 
@@ -127,6 +133,7 @@ export default class Game extends Phaser.Scene
     {
         this.knives.killAndHide(knife);
         this.lizards.killAndHide(lizard);
+        lizard.destroy();
 
     }
 
